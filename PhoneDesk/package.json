@@ -1,0 +1,1 @@
+{"name":"phonedesk-admin","version":"1.0.0","private":true,"description":"Trang quản lý sản phẩm Capstone JavaScript","scripts":{"build:css":"sass src/scss/main.scss dist/css/main.css --style=compressed --no-source-map","start":"http-server dist -p 5500 -c-1"},"devDependencies":{"sass":"1.93.2","http-server":"14.1.1"}}

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Trang quản lý sản phẩm điện thoại: thêm, sửa, xóa, tìm kiếm và sắp xếp giá.">
+<title>PhoneDesk | Quản lý sản phẩm</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='11' fill='%232f6b53'/%3E%3Cpath d='M15 9h10v22H15z' stroke='white' fill='none' stroke-width='2'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/main.css"><script defer src="vendor/axios.min.js"></script><script defer src="js/app.js"></script>
+</head>
+<body>
+<aside class="sidebar">
+<a class="brand" href="./" aria-label="PhoneDesk, trang chủ"><span class="brand-icon">▯</span><span>Phone<span class="brand-light">Desk</span><small>KHÔNG GIAN QUẢN TRỊ</small></span></a>
+<div class="nav-label">QUẢN LÝ CỬA HÀNG</div>
+<a class="nav-item active" href="./" aria-current="page"><span aria-hidden="true">▦</span> Sản phẩm <span class="nav-count" id="nav-count">—</span></a>
+<div class="sidebar-bottom"><div class="connection"><span id="connection-dot" class="dot"></span><span id="connection-text">Đang kết nối dữ liệu</span></div><div class="account"><span class="avatar">AD</span><div><strong>Quản trị sản phẩm</strong><small>Capstone JavaScript</small></div></div></div>
+</aside>
+<div class="workspace">
+<header class="topbar"><div class="breadcrumb">Cửa hàng <span>/</span> <strong>Sản phẩm</strong></div><div class="top-meta"><span class="live-label">Dữ liệu trực tiếp</span><span class="avatar small">AD</span></div></header>
+<main>
+<div class="page-heading"><div><div class="eyebrow">DANH MỤC CỬA HÀNG</div><h1>Quản lý sản phẩm<span>.</span></h1><p>Tất cả điện thoại, trong một không gian.</p></div><button class="button primary" id="add-product"><span aria-hidden="true">＋</span> Thêm sản phẩm</button></div>
+<section class="stats" aria-label="Thống kê sản phẩm"><article class="stat"><div><span>Tổng sản phẩm</span><strong id="stat-total">—</strong><small>Trong danh mục hiện tại</small></div><span class="stat-icon green" aria-hidden="true">▦</span></article><article class="stat"><div><span>Samsung</span><strong id="stat-samsung">—</strong><small>Sản phẩm Samsung</small></div><span class="stat-icon blue" aria-hidden="true">S</span></article><article class="stat"><div><span>iPhone</span><strong id="stat-iphone">—</strong><small>Sản phẩm Apple</small></div><span class="stat-icon sand" aria-hidden="true">i</span></article></section>
+<section class="catalog" aria-labelledby="catalog-title">
+<div class="catalog-heading"><div><h2 id="catalog-title">Danh sách sản phẩm <span id="list-count" class="pill">—</span></h2><p>Chỉnh sửa thông tin và quản lý danh mục của bạn.</p></div><button class="button subtle" id="refresh" title="Lấy lại dữ liệu mới nhất"><span aria-hidden="true">↻</span> Làm mới</button></div>
+<div class="toolbar"><label class="search"><span aria-hidden="true">⌕</span><input type="search" id="search" placeholder="Tìm theo tên sản phẩm…" aria-label="Tìm kiếm theo tên sản phẩm"></label><label class="select-control"><span>Loại</span><select id="type-filter" aria-label="Lọc loại sản phẩm"><option value="">Tất cả</option><option value="samsung">Samsung</option><option value="iphone">iPhone</option></select></label><label class="select-control"><span>Sắp xếp</span><select id="sort" aria-label="Sắp xếp giá"><option value="">Mặc định</option><option value="asc">Giá: thấp đến cao</option><option value="desc">Giá: cao đến thấp</option></select></label></div>
+<div id="load-error" class="error-banner" role="alert" hidden></div>
+<div class="table-wrap"><table><thead><tr><th class="col-order">STT</th><th>SẢN PHẨM</th><th>LOẠI</th><th>GIÁ BÁN</th><th class="spec-col">THÔNG SỐ</th><th class="col-actions">THAO TÁC</th></tr></thead><tbody id="product-body"><tr><td colspan="6" class="state-cell"><span class="loader"></span> Đang tải danh mục…</td></tr></tbody></table></div>
+<div class="catalog-footer"><span id="result-text" aria-live="polite">Đang tải dữ liệu…</span><span id="last-updated">—</span></div>
+</section>
+<footer class="page-footer"><span>PhoneDesk <span>•</span> Quản trị danh mục</span><span>Capstone JS / 2026</span></footer>
+</main>
+</div>
+<dialog id="product-dialog" class="product-dialog"><form id="product-form" novalidate>
+<div class="dialog-heading"><div><div class="eyebrow">THÔNG TIN SẢN PHẨM</div><h2 id="dialog-title">Thêm sản phẩm</h2></div><button class="icon-button close-dialog" type="button" aria-label="Đóng form">×</button></div>
+<div class="form-body"><p class="form-note">Các trường có dấu <span>*</span> là bắt buộc.</p>
+<div class="form-grid">
+<label class="field wide">Tên sản phẩm <span>*</span><input name="name" id="field-name" maxlength="200" placeholder="Ví dụ: Samsung Galaxy S23" autocomplete="off"><small id="error-name" class="field-error"></small></label>
+<label class="field">Giá bán (VNĐ) <span>*</span><input name="price" id="field-price" type="number" min="1" step="any" placeholder="Ví dụ: 15000000"><small id="error-price" class="field-error"></small></label>
+<label class="field">Loại sản phẩm <span>*</span><select name="type" id="field-type"><option value="">Chọn loại sản phẩm</option><option value="samsung">Samsung</option><option value="iphone">iPhone</option></select><small id="error-type" class="field-error"></small></label>
+<label class="field wide">Màn hình <span>*</span><input name="screen" id="field-screen" maxlength="300" placeholder="Ví dụ: AMOLED 6.1 inch"><small id="error-screen" class="field-error"></small></label>
+<label class="field">Camera sau <span>*</span><input name="backCamera" id="field-backCamera" maxlength="300" placeholder="Ví dụ: 50 MP + 12 MP"><small id="error-backCamera" class="field-error"></small></label>
+<label class="field">Camera trước <span>*</span><input name="frontCamera" id="field-frontCamera" maxlength="300" placeholder="Ví dụ: 12 MP"><small id="error-frontCamera" class="field-error"></small></label>
+<label class="field wide">Đường dẫn ảnh <span>*</span><input name="img" id="field-img" type="url" placeholder="https://…"><small id="error-img" class="field-error"></small></label>
+<div class="image-preview wide"><img id="image-preview" alt="Ảnh xem trước" hidden><span id="image-placeholder">▧ <span>Ảnh xem trước</span></span></div>
+<label class="field wide">Mô tả <span>*</span><textarea name="desc" id="field-desc" rows="3" maxlength="2000" placeholder="Đặc điểm nổi bật của sản phẩm…"></textarea><small id="error-desc" class="field-error"></small></label>
+</div><div id="form-error" class="error-banner" role="alert" hidden></div></div>
+<div class="dialog-footer"><button class="button secondary close-dialog" type="button">Hủy</button><button class="button primary" id="save-product" type="submit">Lưu sản phẩm</button></div>
+</form></dialog>
+<dialog id="delete-dialog" class="delete-dialog"><div class="delete-icon" aria-hidden="true">×</div><h2>Xóa sản phẩm?</h2><p>Sản phẩm <strong id="delete-name"></strong> sẽ được xóa khỏi danh mục. Thao tác này không thể hoàn tác.</p><div id="delete-error" class="error-banner" role="alert" hidden></div><div class="delete-actions"><button class="button secondary" id="cancel-delete">Hủy</button><button class="button danger" id="confirm-delete">Xóa sản phẩm</button></div></dialog>
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+</body></html>

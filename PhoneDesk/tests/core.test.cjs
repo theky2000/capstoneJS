@@ -1,0 +1,32 @@
+const assert = require('node:assert/strict');
+const {Product,ProductService,validateProduct,selectProducts,escapeHtml,safeImageUrl,API_URL} = require('../dist/js/app.js');
+const good = {name:' Điện thoại Samsung ',price:'15000000',screen:'AMOLED',backCamera:'50 MP',frontCamera:'12 MP',img:'https://example.com/phone.jpg',desc:'Sản phẩm mẫu',type:'Samsung'};
+assert.deepEqual(validateProduct(good),{});
+for (const price of ['', ' ', '0', '-1', 'abc', 'Infinity']) assert.ok(validateProduct({...good,price}).price);
+for (const field of ['name','screen','backCamera','frontCamera','img','desc','type']) assert.ok(validateProduct({...good,[field]:''})[field]);
+assert.ok(validateProduct({...good,img:'javascript:alert(1)'}).img);
+assert.ok(validateProduct({...good,type:'other'}).type);
+const p = new Product({...good,id:1}); assert.equal(p.id,'1'); assert.equal(p.type,'samsung'); assert.equal(p.price,15000000); assert.equal(p.name,'Điện thoại Samsung');
+assert.equal(new Product({...good,backCamera:undefined,blackCamera:'Legacy'}).backCamera,'Legacy');
+const list = [p,new Product({...good,id:2,name:'Iphone X',type:'Iphone',price:1000}),new Product({...good,id:3,price:3500})];
+assert.equal(selectProducts(list,'dien thoai').length,2);
+assert.equal(selectProducts(list,'','IPHONE').length,1);
+assert.equal(selectProducts(list,'','samsung').length,2);
+assert.deepEqual(selectProducts(list,'','','asc').map(p=>p.price),[1000,3500,15000000]);
+assert.deepEqual(selectProducts(list,'','','desc').map(p=>p.price),[15000000,3500,1000]);
+assert.equal(list[0].price,15000000); // Không thay đổi mảng gốc khi sắp xếp.
+assert.equal(selectProducts(list,'khong co').length,0);
+assert.equal(safeImageUrl('data:text/html,x'),'');
+assert.equal(escapeHtml('<script>"&'),'&lt;script&gt;&quot;&amp;');
+(async()=>{
+ const calls=[]; const client={get:async url=>{calls.push(['GET',url]);return {data:url===API_URL?[{...good,id:'1'}]:{...good,id:'1'}};},post:async(url,data)=>{calls.push(['POST',url,data]);return {data:{...data,id:'5'}};},put:async(url,data)=>{calls.push(['PUT',url,data]);return {data:{...data,id:'1'}};},delete:async url=>{calls.push(['DELETE',url]);}};
+ const service=new ProductService(client);
+ assert.equal((await service.list()).length,1);
+ assert.equal((await service.get('1')).id,'1');
+ assert.equal((await service.create(p)).id,'5'); assert.equal(calls[2][2].id,undefined); assert.equal(calls[2][2].backCamera,'50 MP');
+ await service.update('1',p); assert.equal(calls[3][0],'PUT'); assert.equal(calls[3][1],`${API_URL}/1`);
+ await service.remove('1'); assert.deepEqual(calls[4],['DELETE',`${API_URL}/1`]);
+ const broken = new ProductService({get:async()=>{throw new Error('API failure');}}); await assert.rejects(()=>broken.list(),/API failure/);
+ const invalid = new ProductService({get:async()=>({data:{foo:'bar'}})}); await assert.rejects(()=>invalid.list(),/định dạng/);
+ console.log('PASS: validation, models, filtering, sorting, escaping, image URL, CRUD API contract and error handling. No live API mutations.');
+})();
